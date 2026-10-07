@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 import plotly.graph_objects as go
-import plotly.express as px
 
 st.set_page_config(
     page_title="Tài Xỉu - Tổng điểm 3-18",
@@ -12,9 +11,8 @@ st.set_page_config(
 )
 
 st.title("🎲 Tài Xỉu Analyzer – Tổng điểm (3–18)")
-st.caption("Phiên bản nhẹ – Không dùng LSTM – Chạy tốt trên Android (Termux)")
+st.caption("Phiên bản nhẹ – Không dùng LSTM – Chạy tốt trên điện thoại")
 
-# ====================== XÁC SUẤT LÝ THUYẾT ======================
 @st.cache_data
 def theoretical_distribution():
     ways = {i: 0 for i in range(3, 19)}
@@ -28,7 +26,6 @@ def theoretical_distribution():
 
 theo_ways, theo_probs = theoretical_distribution()
 
-# ====================== SIDEBAR ======================
 with st.sidebar:
     st.header("📥 Nhập dữ liệu")
     input_method = st.radio(
@@ -71,7 +68,6 @@ with st.sidebar:
         history = np.random.choice(sums, size=n, p=probs).tolist()
         st.success(f"Đã tạo {n} phiên theo đúng xác suất lý thuyết")
 
-# ====================== PHÂN TÍCH ======================
 if not history:
     st.info("👈 Hãy nhập dữ liệu ở sidebar bên trái để bắt đầu")
     st.stop()
@@ -79,7 +75,6 @@ if not history:
 n = len(history)
 cnt = Counter(history)
 
-# Tạo bảng phân bố
 df_dist = pd.DataFrame({
     "Tổng": list(range(3, 19)),
     "Số lần": [cnt.get(i, 0) for i in range(3, 19)],
@@ -89,11 +84,9 @@ df_dist = pd.DataFrame({
 })
 df_dist["Chênh lệch"] = df_dist["Xác suất thực nghiệm"] - df_dist["Xác suất lý thuyết"]
 
-# Tài / Xỉu
 xiu_count = sum(cnt.get(i, 0) for i in range(3, 11))
 tai_count = sum(cnt.get(i, 0) for i in range(11, 19))
 
-# Metrics
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Tổng số phiên", n)
 col2.metric("Xỉu (3-10)", f"{xiu_count} ({xiu_count/n:.1%})")
@@ -103,7 +96,6 @@ col4.metric("Tổng xuất hiện nhiều nhất", f"{most_common[0]} ({most_com
 
 st.divider()
 
-# ====================== BIỂU ĐỒ ======================
 st.subheader("📊 Phân bố tổng điểm (Thực nghiệm vs Lý thuyết)")
 
 fig = go.Figure()
@@ -130,7 +122,6 @@ fig.update_layout(
 )
 st.plotly_chart(fig, use_container_width=True)
 
-# ====================== BẢNG CHI TIẾT ======================
 st.subheader("📋 Bảng thống kê chi tiết")
 
 st.dataframe(
@@ -143,7 +134,6 @@ st.dataframe(
     height=500
 )
 
-# ====================== CHUỖI & THÔNG TIN THÊM ======================
 st.subheader("📈 Thông tin thêm")
 
 current = history[-1]
